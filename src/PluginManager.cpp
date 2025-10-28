@@ -9,7 +9,7 @@ void PluginManager::loadPlugins(const std::string& directory) {
     for (const auto& entry : fs::directory_iterator(directory)) {
         if (entry.path().extension() != ".dll") continue;
 
-        std::cout << "Trying to load: " << entry.path() << "\n";
+        //std::cout << "Trying to load: " << entry.path() << "\n";
 
         HMODULE lib = LoadLibraryA(entry.path().string().c_str());
         if (!lib) {
