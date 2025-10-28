@@ -16,9 +16,26 @@ std::vector<Token> Parser::toRPN(const std::vector<Token>& tokens) {
     std::stack<Token> ops;
 
     for (const auto& t : tokens) {
-        if (t.type == TokenType::Number)
+        switch (t.type) {
+        case TokenType::Number:
             output.push_back(t);
-        else if (t.type == TokenType::Operator) {
+            break;
+
+        case TokenType::Function:
+            ops.push(t);
+            break;
+
+        case TokenType::Comma:
+            while (!ops.empty() && ops.top().type != TokenType::LeftParen)
+            {
+                output.push_back(ops.top());
+                ops.pop();
+            }
+            if (ops.empty())
+                throw std::runtime_error("Misplaced comma or mismatched parentheses");
+            break;
+
+        case TokenType::Operator:
             while (!ops.empty() && ops.top().type == TokenType::Operator) {
                 std::string top = ops.top().text;
                 if ((!rightAssociative(t.text) && precedence(t.text) <= precedence(top)) ||
@@ -29,17 +46,25 @@ std::vector<Token> Parser::toRPN(const std::vector<Token>& tokens) {
                 else break;
             }
             ops.push(t);
-        }
-        else if (t.type == TokenType::LeftParen) {
+            break;
+
+        case TokenType::LeftParen:
             ops.push(t);
-        }
-        else if (t.type == TokenType::RightParen) {
+            break;
+
+        case TokenType::RightParen:
             while (!ops.empty() && ops.top().type != TokenType::LeftParen) {
                 output.push_back(ops.top());
                 ops.pop();
             }
-            if (ops.empty()) throw std::runtime_error("Mismatched parentheses");
-            ops.pop();
+            if (ops.empty())
+                throw std::runtime_error("Mismatched parentheses");
+            ops.pop(); 
+            if (!ops.empty() && ops.top().type == TokenType::Function) {
+                output.push_back(ops.top());
+                ops.pop();
+            }
+            break;
         }
     }
 

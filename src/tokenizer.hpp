@@ -6,7 +6,9 @@ enum class TokenType {
     Number,
     Operator,
     LeftParen,
-    RightParen
+    RightParen,
+    Function,
+    Comma
 };
 
 struct Token {
